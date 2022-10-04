@@ -100,11 +100,24 @@ async function main () {
     installSpinner.succeed(`Dependências instaladas em "${packageName}".`)
   }
 
+  const currentBranch = execaSync('git', ['branch', '--show-current']).stdout
+  const acceptableBranch = ['main', 'main-homolog']
+
   // publicando ui
   const publishSpinner = ora('Publicando "ui"').start()
 
+  if (!acceptableBranch.includes(currentBranch)) {
+    publishSpinner.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
+    return
+  }
+
+  const isBeta = currentBranch === 'main-homolog'
+  const publishCommands = ['publish']
+
+  isBeta && publishCommands.push(...['--tag', 'beta'])
+
   try {
-    // execaSync('npm', ['publish'], { cwd: package.resolved })
+    // execaSync('npm', publishCommands, { cwd: package.resolved })
     publishSpinner.succeed('"ui" publicada')
 
     const appExtensionPackage = packages['app-extension']
@@ -124,8 +137,6 @@ async function main () {
 
     const installSpinner = ora('Instalando "ui" no "app-extension"').start()
 
-    execaSync('git', ['init'], { cwd: appExtensionPackage.resolved })
-
     try {
       // execaSync('npm', ['install'], { cwd: appExtensionPackage.resolved })
       installSpinner.succeed('Instalado "ui" no "app-extension"')
@@ -133,7 +144,7 @@ async function main () {
       const publishAppExtensionSpinner = ora('Publicando "app-extension"').start()
 
       try {
-        // execaSync('npm', ['publish'], { cwd: appExtensionPackage.resolved })
+        // execaSync('npm', publishCommands, { cwd: appExtensionPackage.resolved })
         publishAppExtensionSpinner.succeed('"app-extension" publicada com sucesso')
       } catch (error) {
         publishAppExtensionSpinner.fail('Falha ao publicar "app-extension"')
@@ -143,10 +154,6 @@ async function main () {
       installSpinner.fail('Falha ao instalar "ui" no "app-extension')
       throw error
     }
-
-    // Object.assign()
-    console.log("🚀 ~ file: build.js ~ line 113 ~ main ~ resolvedPackagePath", nextDependencies.ui)
-
 
   } catch (error) {
     publishSpinner.fail('Falha ao publicar "ui"')
@@ -194,9 +201,6 @@ async function main () {
   //   ],
   //   { cwd: packages.global.resolved }
   // )
-
-  const test = execaSync('git', ['branch', '--show-current'])
-  console.log("🚀 ~ file: build.js ~ line 199 ~ main ~ test", test)
 }
 
 main()
