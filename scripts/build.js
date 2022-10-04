@@ -117,7 +117,7 @@ async function main () {
   isBeta && publishCommands.push(...['--tag', 'beta'])
 
   try {
-    // execaSync('npm', publishCommands, { cwd: package.resolved })
+    execaSync('npm', publishCommands, { cwd: packages.ui.resolved })
     publishSpinner.succeed('"ui" publicada')
 
     const appExtensionPackage = packages['app-extension']
@@ -138,13 +138,13 @@ async function main () {
     const installSpinner = ora('Instalando "ui" no "app-extension"').start()
 
     try {
-      // execaSync('npm', ['install'], { cwd: appExtensionPackage.resolved })
+      execaSync('npm', ['install'], { cwd: appExtensionPackage.resolved })
       installSpinner.succeed('Instalado "ui" no "app-extension"')
 
       const publishAppExtensionSpinner = ora('Publicando "app-extension"').start()
 
       try {
-        // execaSync('npm', publishCommands, { cwd: appExtensionPackage.resolved })
+        execaSync('npm', publishCommands, { cwd: appExtensionPackage.resolved })
         publishAppExtensionSpinner.succeed('"app-extension" publicada com sucesso')
       } catch (error) {
         publishAppExtensionSpinner.fail('Falha ao publicar "app-extension"')
@@ -184,14 +184,14 @@ async function main () {
   )
 
   // // envia tag para o github
-  // execaSync(
-  //   'git',
-  //   [
-  //     'push',
-  //     '--tag'
-  //   ],
-  //   { cwd: packages.global.resolved }
-  // )
+  execaSync(
+    'git',
+    [
+      'push',
+      '--tag'
+    ],
+    { cwd: packages.global.resolved }
+  )
 
   // envia para o github alterações
   execaSync(
