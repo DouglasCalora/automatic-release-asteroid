@@ -193,14 +193,14 @@ async function main () {
   //   { cwd: packages.global.resolved }
   // )
 
-  // // envia para o github alterações
-  // execaSync(
-  //   'git',
-  //   [
-  //     'push'
-  //   ],
-  //   { cwd: packages.global.resolved }
-  // )
+  // envia para o github alterações
+  execaSync(
+    'git',
+    [
+      'push'
+    ],
+    { cwd: packages.global.resolved }
+  )
 }
 
 main()
