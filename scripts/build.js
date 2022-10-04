@@ -176,24 +176,24 @@ async function main () {
     { cwd: packages.global.resolved }
   )
 
-  // envia tag para o github
-  execaSync(
-    'git',
-    [
-      'push',
-      '--tag'
-    ],
-    { cwd: packages.global.resolved }
-  )
+  // // envia tag para o github
+  // execaSync(
+  //   'git',
+  //   [
+  //     'push',
+  //     '--tag'
+  //   ],
+  //   { cwd: packages.global.resolved }
+  // )
 
-  // envia para o github alterações
-  execaSync(
-    'git',
-    [
-      'push'
-    ],
-    { cwd: packages.global.resolved }
-  )
+  // // envia para o github alterações
+  // execaSync(
+  //   'git',
+  //   [
+  //     'push'
+  //   ],
+  //   { cwd: packages.global.resolved }
+  // )
 
   const test = execaSync('git', ['branch', '--show-current'])
   console.log("🚀 ~ file: build.js ~ line 199 ~ main ~ test", test)
