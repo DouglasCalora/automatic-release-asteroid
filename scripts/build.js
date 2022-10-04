@@ -154,7 +154,8 @@ async function main () {
   }
 
 
-  execaSync('npm', ['install'], { cwd: appExtensionPackage.resolved })
+  execaSync('git', ['add', '.'], { cwd: packages.global.resolved })
+  execaSync('git', ['commit', '-m', `Releasing v${nextVersion}`], { cwd: packages.global.resolved })
 }
 
 main()
