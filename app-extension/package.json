@@ -1,6 +1,6 @@
 {
   "name": "app-extension",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "",
   "main": "index.js",
   "publishConfig": {
@@ -14,6 +14,7 @@
   "author": "Bild & Vitta <systemteam@bild.com.br>",
   "license": "MIT",
   "dependencies": {
-    "ui": "1.1.5"
+    "ui": "1.1.5",
+    "automatic-release-asteroid-ui": "1.1.6"
   }
 }

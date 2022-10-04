@@ -127,7 +127,7 @@ async function main () {
     const nextVersion = semver.clean(responses.nextVersion)
 
     const nextDependencies = currentPackage.dependencies
-    nextDependencies.ui = nextVersion
+    nextDependencies['automatic-release-asteroid-ui'] = nextVersion
 
     jetpack.write(resolvedPackagePath, {
       ...currentPackage,
