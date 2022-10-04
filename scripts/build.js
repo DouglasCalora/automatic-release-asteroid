@@ -153,9 +153,47 @@ async function main () {
     throw error
   }
 
-
+  // commit as alterações
   execaSync('git', ['add', '.'], { cwd: packages.global.resolved })
-  execaSync('git', ['commit', '-m', `Releasing v${nextVersion}`], { cwd: packages.global.resolved })
+
+  execaSync(
+    'git',
+    [
+      'commit',
+      '-m',
+      `Releasing v${nextVersion}`
+      ],
+    { cwd: packages.global.resolved }
+  )
+
+  // gera a tag
+  execaSync(
+    'git',
+    [
+      'tag',
+      `v${nextVersion}`
+    ],
+    { cwd: packages.global.resolved }
+  )
+
+  // envia tag para o github
+  execaSync(
+    'git',
+    [
+      'push',
+      '--tag'
+    ],
+    { cwd: packages.global.resolved }
+  )
+
+  // envia para o github alterações
+  execaSync(
+    'git',
+    [
+      'push'
+    ],
+    { cwd: packages.global.resolved }
+  )
 }
 
 main()
