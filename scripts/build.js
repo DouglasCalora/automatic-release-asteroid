@@ -106,7 +106,28 @@ async function main () {
   // publicando ui
   const publishSpinner = ora('Publicando "ui"').start()
 
-  if (!acceptableBranch.includes(currentBranch)) {
+  const packagePath = `${packages.global.path}CHANGELOG.md`
+  const resolvedPackagePath = path.resolve(packagePath)
+
+  const currentChangelog = jetpack.read(resolvedPackagePath, 'utf8')
+
+  const unreleasedText = '## Não publicado'
+  const indexOfEnd = currentChangelog.indexOf('## [')
+  const indexOfStart = currentChangelog.indexOf(unreleasedText)
+  const changelogContent = currentChangelog.substring(indexOfStart, indexOfEnd)
+  
+  const publishedDate = new Intl.DateTimeFormat('pt-BR').format(new Date()).replace(/\//g, '-')
+
+  const normalizedChangelog = currentChangelog.replace(unreleasedText, `## [${nextVersion}] - ${publishedDate}`)
+  
+  
+
+  // jetpack.write(resolvedPackagePath, currentChangelog)
+  jetpack.write(resolvedPackagePath, normalizedChangelog)
+
+
+  if (true) {
+    // if (!acceptableBranch.includes(currentBranch)) {
     publishSpinner.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
     return
   }
