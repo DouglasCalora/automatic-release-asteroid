@@ -88,7 +88,7 @@ function getAppExtensionPackage () {
   }
 }
 
-function changelogHandler ({ ora }) {
+function changelogHandler ({ ora, nextVersion, currentVersion }) {
   const changelogPath = `${packages.global.path}CHANGELOG.md`
   const resolvedChangelogPath = path.resolve(changelogPath)
 
@@ -219,7 +219,7 @@ async function main () {
   // const currentChangelog = jetpack.read(resolvedChangelogPath, 'utf8')
   // const hasUnreleased = currentChangelog.match(/\## Não publicado\b/g)
 
-  const { hasUnreleased, update, getContent } = changelogHandler({ ora })
+  const { hasUnreleased, update, getContent } = changelogHandler({ ora, nextVersion, currentVersion })
 
   if (!hasUnreleased) {
     ora(
