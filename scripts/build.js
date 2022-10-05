@@ -39,6 +39,12 @@ function logError (error) {
   return console.error(error.red)
 }
 
+function getVersionLinkCompare (nextVersion, currentVersion) {
+  return (
+    `[${nextVersion}]: https://github.com/bildvitta/asteroid/compare/v${currentVersion}...v${nextVersion}?expand=1`
+  )
+}
+
 // Main
 async function main () {
   const { execaSync } = await import('execa') // https://github.com/sindresorhus/execa
@@ -106,25 +112,28 @@ async function main () {
   // publicando ui
   const publishSpinner = ora('Publicando "ui"').start()
 
-  const packagePath = `${packages.global.path}CHANGELOG.md`
-  const resolvedPackagePath = path.resolve(packagePath)
+  const changelogPath = `${packages.global.path}CHANGELOG.md`
+  const resolvedChangelogPath = path.resolve(changelogPath)
 
-  const currentChangelog = jetpack.read(resolvedPackagePath, 'utf8')
+  const currentChangelog = jetpack.read(resolvedChangelogPath, 'utf8')
 
   const unreleasedText = '## Não publicado'
-  const indexOfEnd = currentChangelog.indexOf('## [')
   const indexOfStart = currentChangelog.indexOf(unreleasedText)
+  const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
   const changelogContent = currentChangelog.substring(indexOfStart, indexOfEnd)
-  
+
   const publishedDate = new Intl.DateTimeFormat('pt-BR').format(new Date()).replace(/\//g, '-')
+  const versionLinkCompare = getVersionLinkCompare(nextVersion, currentVersion)
+  const replacedChangelog = currentChangelog.replace(
+    unreleasedText,
+    `## [${nextVersion}] - ${publishedDate}`
+  ).trimEnd()
 
-  const normalizedChangelog = currentChangelog.replace(unreleasedText, `## [${nextVersion}] - ${publishedDate}`)
-  
-  
+  const normalizedChangelog = (
+    replacedChangelog + '\n' + versionLinkCompare
+  )
 
-  // jetpack.write(resolvedPackagePath, currentChangelog)
-  jetpack.write(resolvedPackagePath, normalizedChangelog)
-
+  jetpack.write(resolvedChangelogPath, normalizedChangelog)
 
   if (true) {
     // if (!acceptableBranch.includes(currentBranch)) {
@@ -135,7 +144,7 @@ async function main () {
   const isBeta = currentBranch === 'main-homolog'
   const publishCommands = ['publish']
 
-  isBeta && publishCommands.push(...['--tag', 'beta'])
+  isBeta && publishCommands.push('--tag', 'beta')
 
   try {
     execaSync('npm', publishCommands, { cwd: packages.ui.resolved })
@@ -144,14 +153,13 @@ async function main () {
     const appExtensionPackage = packages['app-extension']
     const packagePath = `${appExtensionPackage.path}package.json`
     const resolvedPackagePath = path.resolve(packagePath)
-    const currentPackage = jetpack.read(resolvedPackagePath, 'json')
-    const nextVersion = semver.clean(responses.nextVersion)
+    const currentAppExtensionPackage = jetpack.read(resolvedPackagePath, 'json')  
 
-    const nextDependencies = currentPackage.dependencies
+    const nextDependencies = currentAppExtensionPackage.dependencies
     nextDependencies['automatic-release-asteroid-ui'] = nextVersion
 
     jetpack.write(resolvedPackagePath, {
-      ...currentPackage,
+      ...currentAppExtensionPackage,
 
       dependencies: nextDependencies
     })
@@ -181,7 +189,7 @@ async function main () {
     throw error
   }
 
-  // commit as alterações
+  // commita as alterações
   execaSync('git', ['add', '.'], { cwd: packages.global.resolved })
 
   execaSync(
@@ -190,7 +198,7 @@ async function main () {
       'commit',
       '-m',
       `Releasing v${nextVersion}`
-      ],
+    ],
     { cwd: packages.global.resolved }
   )
 
@@ -204,7 +212,7 @@ async function main () {
     { cwd: packages.global.resolved }
   )
 
-  // // envia tag para o github
+  // envia tag para o github
   execaSync(
     'git',
     [
