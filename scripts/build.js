@@ -5,7 +5,6 @@ const { prompt } = require('enquirer') // https://github.com/enquirer/enquirer
 const jetpack = require('fs-jetpack') // https://github.com/szwacz/fs-jetpack
 const path = require('path') // https://nodejs.org/api/path.html
 const semver = require('semver') // https://github.com/npm/node-semver
-const { default: ora } = await import('ora') // https://github.com/sindresorhus/ora
 
 // Options
 const packages = {
@@ -46,7 +45,7 @@ function getVersionLinkCompare (nextVersion, currentVersion) {
   )
 }
 
-async function createGithubRelease ({ body, isBeta, version }) {
+async function createGithubRelease ({ body, isBeta, version, ora }) {
   const { Octokit } = require("@octokit/rest")
 
   const octokit = new Octokit({
@@ -77,9 +76,67 @@ async function createGithubRelease ({ body, isBeta, version }) {
   }
 }
 
+function getAppExtensionPackage () {
+  // recupera o package.json
+  const appExtensionPackage = packages['app-extension']
+  const packagePath = `${appExtensionPackage.path}package.json`
+  const resolvedPackagePath = path.resolve(packagePath)
+
+  return {
+    packageData: jetpack.read(resolvedPackagePath, 'json'),
+    resolvedPackagePath
+  }
+}
+
+function changelogHandler ({ ora }) {
+  const changelogPath = `${packages.global.path}CHANGELOG.md`
+  const resolvedChangelogPath = path.resolve(changelogPath)
+
+  const currentChangelog = jetpack.read(resolvedChangelogPath, 'utf8')
+
+  const unreleasedText = '## Não publicado'
+
+  return {
+    hasUnreleased: currentChangelog.match(/\## Não publicado\b/g),
+
+    getContent () {
+      const indexOfStart = currentChangelog.indexOf(unreleasedText)
+      const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
+
+      return currentChangelog.substring(indexOfStart, indexOfEnd)
+    },
+
+    update () {
+      const updateChangelogSpinner = ora('Atualizando "CHANGELOG.md"...').start()
+
+      try {
+        const publishedDate = new Intl.DateTimeFormat('pt-BR').format(new Date()).replace(/\//g, '-')
+
+        const replacedChangelog = currentChangelog.replace(
+          unreleasedText,
+          `## [${nextVersion}] - ${publishedDate}`
+        ).trimEnd()
+  
+        const versionLinkCompare = getVersionLinkCompare(nextVersion, currentVersion)
+  
+        const normalizedChangelog = (
+          replacedChangelog + '\n' + versionLinkCompare
+        )
+  
+        jetpack.write(resolvedChangelogPath, normalizedChangelog)
+
+        updateChangelogSpinner.succeed('"CHANGELOG.md" foi atualizado com sucesso!')
+      } catch {
+        updateChangelogSpinner.fail('alh ao atualizar "CHANGELOG.md".')
+      }
+    }
+  }
+}
+
 // Main
 async function main () {
   const { execaSync } = await import('execa') // https://github.com/sindresorhus/execa
+  const { default: ora } = await import('ora') // https://github.com/sindresorhus/ora
 
   // Start!
   console.clear()
@@ -139,14 +196,30 @@ async function main () {
 
   // ----------------------- A partir daqui tudo é referente a publicação do asteroid -----------------------
 
+  if (!process.env.GITHUB_TOKEN) {
+    ora(
+      'Inicialize a variável de ambiente "GITHUB_TOKEN" no seu sistema operacional para que possa ser feita a criação de release no github'
+    ).fail()
+
+    return
+  }
+
   const currentBranch = execaSync('git', ['branch', '--show-current']).stdout
   const acceptableBranch = ['main', 'main-homolog']
 
-  const changelogPath = `${packages.global.path}CHANGELOG.md`
-  const resolvedChangelogPath = path.resolve(changelogPath)
+  if (!acceptableBranch.includes(currentBranch)) {
+    ora.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
+    return
+  }
 
-  const currentChangelog = jetpack.read(resolvedChangelogPath, 'utf8')
-  const hasUnreleased = currentChangelog.match(/\## Não publicado\b/g)
+  // ------------------- inicio: CHANGELOG.md -------------------
+  // const changelogPath = `${packages.global.path}CHANGELOG.md`
+  // const resolvedChangelogPath = path.resolve(changelogPath)
+
+  // const currentChangelog = jetpack.read(resolvedChangelogPath, 'utf8')
+  // const hasUnreleased = currentChangelog.match(/\## Não publicado\b/g)
+
+  const { hasUnreleased, update, getContent } = changelogHandler({ ora })
 
   if (!hasUnreleased) {
     ora(
@@ -156,39 +229,27 @@ async function main () {
     return
   }
 
-  if (!process.env.GITHUB_TOKEN) {
-    ora(
-      'Inicialize a variável de ambiente "GITHUB_TOKEN" no seu sistema operacional para que possa ser feita a criação de release no github'
-    ).fail()
+  // const unreleasedText = '## Não publicado'
+  // const indexOfStart = currentChangelog.indexOf(unreleasedText)
+  // const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
+  // const changelogContent = currentChangelog.substring(indexOfStart, indexOfEnd)
 
-    return
-  }
+  // const publishedDate = new Intl.DateTimeFormat('pt-BR').format(new Date()).replace(/\//g, '-')
+  // const versionLinkCompare = getVersionLinkCompare(nextVersion, currentVersion)
+  // const replacedChangelog = currentChangelog.replace(
+  //   unreleasedText,
+  //   `## [${nextVersion}] - ${publishedDate}`
+  // ).trimEnd()
 
-  const unreleasedText = '## Não publicado'
-  const indexOfStart = currentChangelog.indexOf(unreleasedText)
-  const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
-  const changelogContent = currentChangelog.substring(indexOfStart, indexOfEnd)
+  // const normalizedChangelog = (
+  //   replacedChangelog + '\n' + versionLinkCompare
+  // )
 
-  const publishedDate = new Intl.DateTimeFormat('pt-BR').format(new Date()).replace(/\//g, '-')
-  const versionLinkCompare = getVersionLinkCompare(nextVersion, currentVersion)
-  const replacedChangelog = currentChangelog.replace(
-    unreleasedText,
-    `## [${nextVersion}] - ${publishedDate}`
-  ).trimEnd()
-
-  const normalizedChangelog = (
-    replacedChangelog + '\n' + versionLinkCompare
-  )
-
-  jetpack.write(resolvedChangelogPath, normalizedChangelog)
+  // jetpack.write(resolvedChangelogPath, normalizedChangelog)
+  // ------------------- fim: CHANGELOG.md -------------------
 
   // publicando ui
   const publishSpinner = ora('Publicando "ui"').start()
-
-  if (!acceptableBranch.includes(currentBranch)) {
-    publishSpinner.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
-    return
-  }
 
   const isBeta = currentBranch === 'main-homolog'
   const publishCommands = ['publish']
@@ -196,19 +257,19 @@ async function main () {
   isBeta && publishCommands.push('--tag', 'beta')
 
   try {
+    // inicio da publicação do "ui"
     execaSync('npm', publishCommands, { cwd: packages.ui.resolved })
     publishSpinner.succeed('"ui" publicada')
 
-    const appExtensionPackage = packages['app-extension']
-    const packagePath = `${appExtensionPackage.path}package.json`
-    const resolvedPackagePath = path.resolve(packagePath)
-    const currentAppExtensionPackage = jetpack.read(resolvedPackagePath, 'json')  
+    // recupera o package.json do app-extension
+    const { packageData, resolvedPackagePath } = getAppExtensionPackage()
 
-    const nextDependencies = currentAppExtensionPackage.dependencies
-    nextDependencies['automatic-release-asteroid-ui'] = nextVersion
+    // atualiza o package.json do app-extension com a nova versão do "ui"
+    const nextDependencies = packageData.dependencies
+    nextDependencies['automatic-release-asteroid-ui'] = nextVersion // TODO alterar
 
     jetpack.write(resolvedPackagePath, {
-      ...currentAppExtensionPackage,
+      ...packageData,
 
       dependencies: nextDependencies
     })
@@ -216,13 +277,15 @@ async function main () {
     const installSpinner = ora('Instalando "ui" no "app-extension"').start()
 
     try {
-      execaSync('npm', ['install'], { cwd: appExtensionPackage.resolved })
+      // instala a nova versão do "ui"
+      execaSync('npm', ['install'], { cwd: packages['app-extension'].resolved })
       installSpinner.succeed('Instalado "ui" no "app-extension"')
 
       const publishAppExtensionSpinner = ora('Publicando "app-extension"').start()
 
       try {
-        execaSync('npm', publishCommands, { cwd: appExtensionPackage.resolved })
+        // publica a nova versão do "app-extension"
+        execaSync('npm', publishCommands, { cwd: packages['app-extension'].resolved })
         publishAppExtensionSpinner.succeed('"app-extension" publicada com sucesso')
       } catch (error) {
         publishAppExtensionSpinner.fail('Falha ao publicar "app-extension"')
@@ -238,49 +301,30 @@ async function main () {
     throw error
   }
 
+  // atualiza o CHANGELOG.md
+  update()
+
   // commita as alterações
   execaSync('git', ['add', '.'], { cwd: packages.global.resolved })
-
-  execaSync(
-    'git',
-    [
-      'commit',
-      '-m',
-      `Releasing v${nextVersion}`
-    ],
-    { cwd: packages.global.resolved }
-  )
+  execaSync('git', ['commit', '-m', `Releasing v${nextVersion}`], { cwd: packages.global.resolved })
 
   // gera a tag
-  execaSync(
-    'git',
-    [
-      'tag',
-      `v${nextVersion}`
-    ],
-    { cwd: packages.global.resolved }
-  )
+  execaSync('git', ['tag', `v${nextVersion}`], { cwd: packages.global.resolved })
 
   // envia tag para o github
-  execaSync(
-    'git',
-    [
-      'push',
-      '--tag'
-    ],
-    { cwd: packages.global.resolved }
-  )
+  execaSync('git', ['push', '--tag'], { cwd: packages.global.resolved })
 
-  // envia para o github alterações
-  execaSync(
-    'git',
-    [
-      'push'
-    ],
-    { cwd: packages.global.resolved }
-  )
+  // envia as alterações para o github
+  const test = execaSync('git', ['push'], { cwd: packages.global.resolved })
+  console.log("🚀 ~ file: build.js ~ line 266 ~ main ~ test", test)
 
-  await createGithubRelease({ body: changelogContent, isBeta, version: nextVersion })
+  // cria release no github
+  createGithubRelease({
+    body: getContent(),
+    isBeta,
+    ora,
+    version: nextVersion,
+  })
 }
 
 main()
