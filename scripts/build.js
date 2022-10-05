@@ -5,6 +5,7 @@ const { prompt } = require('enquirer') // https://github.com/enquirer/enquirer
 const jetpack = require('fs-jetpack') // https://github.com/szwacz/fs-jetpack
 const path = require('path') // https://nodejs.org/api/path.html
 const semver = require('semver') // https://github.com/npm/node-semver
+const { default: ora } = await import('ora') // https://github.com/sindresorhus/ora
 
 // Options
 const packages = {
@@ -45,10 +46,40 @@ function getVersionLinkCompare (nextVersion, currentVersion) {
   )
 }
 
+async function createGithubRelease ({ body, isBeta, version }) {
+  const { Octokit } = require("@octokit/rest")
+
+  const octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN
+  })
+
+  const versionTag = `v${version}`
+
+  const publishReleaseSpinner = ora('Publicando release no github...').start()
+
+  try {
+    await octokit.request('POST /repos/douglascalora/automatic-release-asteroid/releases', {
+      owner: 'douglascalora', // TODO alterar
+      repo: 'automatic-release-asteroid', // TODO alterar
+      tag_name: versionTag,
+      target_commitish: isBeta ? 'main-homolog' : 'main',
+      name: versionTag,
+      body,
+      draft: false,
+      prerelease: isBeta,
+      generate_release_notes: false
+    })
+
+    publishReleaseSpinner.succeed('Publicado release no github com sucesso!')
+  } catch (error) {
+    publishReleaseSpinner.fail('Falha ao publicar release no github.')
+    throw error
+  }
+}
+
 // Main
 async function main () {
   const { execaSync } = await import('execa') // https://github.com/sindresorhus/execa
-  const { default: ora } = await import('ora') // https://github.com/sindresorhus/ora
 
   // Start!
   console.clear()
@@ -102,20 +133,36 @@ async function main () {
 
     // Install dependencies
     const installSpinner = ora(`Instalando dependências em "${packageName}"...`).start()
-    // execaSync('npm', ['install'], { cwd: packageData.resolved })
+    execaSync('npm', ['install'], { cwd: packageData.resolved })
     installSpinner.succeed(`Dependências instaladas em "${packageName}".`)
   }
 
+  // ----------------------- A partir daqui tudo é referente a publicação do asteroid -----------------------
+
   const currentBranch = execaSync('git', ['branch', '--show-current']).stdout
   const acceptableBranch = ['main', 'main-homolog']
-
-  // publicando ui
-  const publishSpinner = ora('Publicando "ui"').start()
 
   const changelogPath = `${packages.global.path}CHANGELOG.md`
   const resolvedChangelogPath = path.resolve(changelogPath)
 
   const currentChangelog = jetpack.read(resolvedChangelogPath, 'utf8')
+  const hasUnreleased = currentChangelog.match(/\## Não publicado\b/g)
+
+  if (!hasUnreleased) {
+    ora(
+      'Não foi possível encontrar o "## Não publicado" dentro do CHANGELOG.md por favor adicione para continuar'
+    ).fail()
+
+    return
+  }
+
+  if (!process.env.GITHUB_TOKEN) {
+    ora(
+      'Inicialize a variável de ambiente "GITHUB_TOKEN" no seu sistema operacional para que possa ser feita a criação de release no github'
+    ).fail()
+
+    return
+  }
 
   const unreleasedText = '## Não publicado'
   const indexOfStart = currentChangelog.indexOf(unreleasedText)
@@ -135,8 +182,10 @@ async function main () {
 
   jetpack.write(resolvedChangelogPath, normalizedChangelog)
 
-  if (true) {
-    // if (!acceptableBranch.includes(currentBranch)) {
+  // publicando ui
+  const publishSpinner = ora('Publicando "ui"').start()
+
+  if (!acceptableBranch.includes(currentBranch)) {
     publishSpinner.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
     return
   }
@@ -230,6 +279,8 @@ async function main () {
     ],
     { cwd: packages.global.resolved }
   )
+
+  await createGithubRelease({ body: changelogContent, isBeta, version: nextVersion })
 }
 
 main()
