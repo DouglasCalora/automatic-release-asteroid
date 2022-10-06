@@ -246,6 +246,24 @@ function releaseAppExtension ({ execaSync, ora, nextVersion, publishCommands }) 
   }
 }
 
+function releaseUi ({ execaSync, ora, nextVersion, publishCommands }) {
+  const publishSpinner = ora('Publicando "ui"...').start()
+
+  try {
+    execaSync('npm', publishCommands, { cwd: packages.ui.resolved })
+    publishSpinner.succeed('"ui" publicada')
+
+    releaseAppExtension({
+      execaSync,
+      ora,
+      nextVersion,
+      publishCommands
+    })
+  } catch (error) {
+    publishSpinner.fail('Falha ao publicar "ui"')
+    throw error
+  }
+}
 // Main
 async function main () {
   const { execaSync } = await import('execa') // https://github.com/sindresorhus/execa
@@ -349,65 +367,18 @@ async function main () {
     return
   }
 
-  // publicando ui
-  const publishSpinner = ora('Publicando "ui"').start()
-
   const isBeta = currentBranch === 'main-homolog'
   const publishCommands = ['publish']
 
   isBeta && publishCommands.push('--tag', 'beta')
 
   if (nextVersion !== latestVersions.ui) {
-    try {
-      // inicio da publicação do "ui"
-      execaSync('npm', publishCommands, { cwd: packages.ui.resolved })
-      publishSpinner.succeed('"ui" publicada')
-  
-      releaseAppExtension({
-        execaSync,
-        ora,
-        nextVersion
-      })
-  
-      // // recupera o package.json do app-extension
-      // const { packageData, resolvedPackagePath } = getAppExtensionPackage()
-  
-      // // atualiza o package.json do app-extension com a nova versão do "ui"
-      // const nextDependencies = packageData.dependencies
-      // nextDependencies['automatic-release-asteroid-ui'] = nextVersion // TODO alterar
-  
-      // jetpack.write(resolvedPackagePath, {
-      //   ...packageData,
-  
-      //   dependencies: nextDependencies
-      // })
-  
-      // const installSpinner = ora('Instalando "ui" no "app-extension"').start()
-  
-      // try {
-      //   // instala a nova versão do "ui"
-      //   execaSync('npm', ['install'], { cwd: packages['app-extension'].resolved })
-      //   installSpinner.succeed('Instalado "ui" no "app-extension"')
-  
-      //   const publishAppExtensionSpinner = ora('Publicando "app-extension"').start()
-  
-      //   try {
-      //     // publica a nova versão do "app-extension"
-      //     execaSync('npm', publishCommands, { cwd: packages['app-extension'].resolved })
-      //     publishAppExtensionSpinner.succeed('"app-extension" publicada com sucesso')
-      //   } catch (error) {
-      //     publishAppExtensionSpinner.fail('Falha ao publicar "app-extension"')
-      //     throw error
-      //   }
-      // } catch (error) {
-      //   installSpinner.fail('Falha ao instalar "ui" no "app-extension')
-      //   throw error
-      // }
-  
-    } catch (error) {
-      publishSpinner.fail('Falha ao publicar "ui"')
-      throw error
-    }
+    releaseUi({
+      execaSync,
+      ora,
+      nextVersion,
+      publishCommands
+    })
   } else {
     releaseAppExtension({
       execaSync,
