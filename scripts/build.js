@@ -402,6 +402,9 @@ async function main () {
   execaSync('git', ['push', '--tag'], { cwd: packages.global.resolved })
 
   // envia as alterações para o github
+  const pushCommands = ['push']
+
+  pushCommands.push(isBeta ? 'main-homolog' : 'main')
   execaSync('git', ['push'], { cwd: packages.global.resolved })
 
   // cria release no github
