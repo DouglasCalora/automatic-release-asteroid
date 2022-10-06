@@ -210,7 +210,7 @@ function getLatestVersions ({ execaSync, isBeta, ora }) {
 }
 
 function releaseAppExtension ({ execaSync, ora, nextVersion, publishCommands }) {
-  const installSpinner = ora('Instalando "ui" no "app-extension"').start()
+  const installSpinner = ora('Instalando "ui" no "app-extension"...').start()
 
   try {
     // recupera o package.json do app-extension
