@@ -100,6 +100,9 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
     hasUnreleased: currentChangelog.match(/\## Não publicado\b/g),
 
     getContent () {
+      console.log('currentVersion', currentVersion)
+      console.log('currentChangelog', currentChangelog)
+      console.log('unreleasedText', unreleasedText)
       const indexOfStart = currentChangelog.indexOf(unreleasedText)
       const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
 
