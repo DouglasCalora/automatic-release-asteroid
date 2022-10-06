@@ -14,6 +14,6 @@
   "author": "Bild & Vitta <systemteam@bild.com.br>",
   "license": "MIT",
   "dependencies": {
-    "automatic-release-asteroid-ui": "2.1.16"
+    "automatic-release-asteroid-ui": "2.1.17"
   }
 }

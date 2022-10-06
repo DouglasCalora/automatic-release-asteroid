@@ -187,7 +187,9 @@ function getNormalizeVersions (versions = {}, isBeta) {
   return normalizedVersion
 }
 
-function getLatestVersions ({ execaSync, isBeta }) {
+function getLatestVersions ({ execaSync, isBeta, ora }) {
+  const latestVersionsSpinner = ora('Obtendo versões atualizadas no npm...').start()
+
   // TODO alterar nomes dos pacotes
   const appExtensionVersions = JSON.parse(execaSync('npm', ['show', 'app-extension', 'time', '--json']).stdout) 
   const uiVersions = JSON.parse(execaSync('npm', ['show', 'automatic-release-asteroid-ui', 'time', '--json']).stdout)
@@ -196,10 +198,13 @@ function getLatestVersions ({ execaSync, isBeta }) {
   const normalizedUiVersions = getNormalizeVersions(uiVersions, isBeta)
   const today = new Date()
 
-  return {
-    appExtension: getNearestVersion(normalizedAppExtensionVersions, today),
-    ui: getNearestVersion(normalizedUiVersions, today)
+  const versions = {
+    ui: getNearestVersion(normalizedUiVersions, today),
+    appExtension: getNearestVersion(normalizedAppExtensionVersions, today)
   }
+
+  latestVersionsSpinner.succeed('Versões do npm obtidas!')
+  return versions
 }
 
 // Main
@@ -217,8 +222,7 @@ async function main () {
     '\n'
   )
 
-  const { appExtension, ui } = getLatestVersions({ execaSync })
-  console.log("🚀 ~ file: build.js ~ line 225 ~ main ~ getLatestVersions({ execaSync })", getLatestVersions({ execaSync }))
+  const latestVersions = getLatestVersions({ execaSync, ora })
 
   let currentVersion = require('../package.json').version
 
@@ -241,7 +245,17 @@ async function main () {
 
   const nextVersion = semver.clean(responses.nextVersion)
 
-  // if (nextVersion <)
+  /*
+  * caso a versão atual do JSON seja menor do que a ultima versão publicada no NPM
+  * então a versão atual deve ser a ultima versão publicada no npm
+  */
+  for (const key in latestVersions) {
+    const latestVersion = latestVersions[key]
+
+    if (latestVersion < currentVersion) {
+      currentVersion = latestVersion
+    }
+  }
 
   for (const packageName in packages) {
     const packageData = packages[packageName]
