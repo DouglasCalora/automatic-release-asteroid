@@ -111,7 +111,9 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
         )
       }
 
-      return currentChangelog.substring(indexOfStart, indexOfEnd)
+      const content = currentChangelog.substring(indexOfStart, indexOfEnd)
+
+      return content
     },
 
     update () {
