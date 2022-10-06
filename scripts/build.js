@@ -101,15 +101,13 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
 
     getContent () {
       const indexOfStart = currentChangelog.indexOf(unreleasedText)
-      console.log("🚀 ~ file: build.js ~ line 104 ~ getContent ~ currentChangelog", currentChangelog)
-      console.log("🚀 ~ file: build.js ~ line 104 ~ getContent ~ indexOfStart", indexOfStart)
       const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
 
-      if (!indexOfEnd) {
+      const hasIndexRange = (indexOfEnd >= 0 && indexOfStart >= 0)
+
+      if (!hasIndexRange) {
         return (
-          `
-            Para saber mais sobre as alterações acesse: https://github.com/bildvitta/asteroid/blob/main/CHANGELOG.md
-          `
+          'Para saber mais sobre as alterações acesse: https://github.com/bildvitta/asteroid/blob/main/CHANGELOG.md'
         )
       }
 
@@ -137,9 +135,70 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
 
         updateChangelogSpinner.succeed('"CHANGELOG.md" foi atualizado com sucesso!')
       } catch {
-        updateChangelogSpinner.fail('alh ao atualizar "CHANGELOG.md".')
+        updateChangelogSpinner.fail('Falha ao atualizar "CHANGELOG.md".')
       }
     }
+  }
+}
+
+function getNearestVersion (dates, target) {
+  if (!target) target = Date.now()
+
+  else if (target instanceof Date) target = target.getTime()
+
+  var nearest = Infinity
+  var winner = -1
+
+  for (const key in dates) {
+    let date = new Date(dates[key])
+
+    if (date instanceof Date) {
+      date = date.getTime()
+    }
+
+    const distance = Math.abs(date - target)
+
+    if (distance < nearest) {
+      nearest = distance
+      winner = key
+    }
+  }
+
+  return winner
+}
+
+function getNormalizeVersions (versions = {}, isBeta) {
+  const normalizedVersion = {}
+  const nonAcceptableKey = ['created', 'modified']
+
+  for (const key in versions) {
+    if (nonAcceptableKey.includes(key)) continue
+
+    if (isBeta && key.includes('-beta')) {
+      normalizedVersion[key] = versions[key]
+      continue
+    }
+
+    if (!isBeta && !key.includes('-beta')) {
+      normalizedVersion[key] = versions[key]
+    }
+  }
+
+  return normalizedVersion
+}
+
+function getLatestVersions ({ execaSync, isBeta }) {
+  // TODO alterar nomes dos pacotes
+  const appExtensionVersions = JSON.parse(execaSync('npm', ['show', 'app-extension', 'time', '--json']).stdout) 
+  const uiVersions = JSON.parse(execaSync('npm', ['show', 'automatic-release-asteroid-ui', 'time', '--json']).stdout)
+
+  const normalizedAppExtensionVersions = getNormalizeVersions(appExtensionVersions, isBeta)
+  const normalizedUiVersions = getNormalizeVersions(uiVersions, isBeta)
+  const today = new Date()
+
+  return {
+    appExtension: getNearestVersion(normalizedAppExtensionVersions, today),
+    ui: getNearestVersion(normalizedUiVersions, today)
   }
 }
 
@@ -158,7 +217,10 @@ async function main () {
     '\n'
   )
 
-  const currentVersion = require('../package.json').version
+  const { appExtension, ui } = getLatestVersions({ execaSync })
+  console.log("🚀 ~ file: build.js ~ line 225 ~ main ~ getLatestVersions({ execaSync })", getLatestVersions({ execaSync }))
+
+  let currentVersion = require('../package.json').version
 
   const responses = await prompt({
     name: 'nextVersion',
@@ -178,6 +240,8 @@ async function main () {
   })
 
   const nextVersion = semver.clean(responses.nextVersion)
+
+  // if (nextVersion <)
 
   for (const packageName in packages) {
     const packageData = packages[packageName]
@@ -325,9 +389,7 @@ async function main () {
   execaSync('git', ['push', '--tag'], { cwd: packages.global.resolved })
 
   // envia as alterações para o github
-  console.log('antes do teste')
-  const test = execaSync('git', ['push'], { cwd: packages.global.resolved })
-  console.log("🚀 ~ file: build.js ~ line 266 ~ main ~ test", test)
+  execaSync('git', ['push'], { cwd: packages.global.resolved })
 
   // cria release no github
   createGithubRelease({
