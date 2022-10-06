@@ -103,6 +103,14 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
       const indexOfStart = currentChangelog.indexOf(unreleasedText)
       const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
 
+      if (!indexOfEnd) {
+        return (
+          `
+            Para saber mais sobre as alterações acesse: https://github.com/bildvitta/asteroid/blob/main/CHANGELOG.md
+          `
+        )
+      }
+
       return currentChangelog.substring(indexOfStart, indexOfEnd)
     },
 
@@ -315,6 +323,7 @@ async function main () {
   execaSync('git', ['push', '--tag'], { cwd: packages.global.resolved })
 
   // envia as alterações para o github
+  console.log('antes do teste')
   const test = execaSync('git', ['push'], { cwd: packages.global.resolved })
   console.log("🚀 ~ file: build.js ~ line 266 ~ main ~ test", test)
 

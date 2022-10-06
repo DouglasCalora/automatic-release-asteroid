@@ -8,6 +8,10 @@ Para encontrar de uma forma mais detalhada todas as mudanças da `versão 2` par
 Neste arquivo (CHANGELOG.MD) você encontrará somente as mudanças referentes a versão 3.
 
 
+## [2.1.15] - 06-10-2022
+### Removido
+- teste
+
 ## [2.1.14] - 05-10-2022
 ### Adicionado
 - novo teste 3434
@@ -65,3 +69,4 @@ Neste arquivo (CHANGELOG.MD) você encontrará somente as mudanças referentes a
 [2.1.9]: https://github.com/bildvitta/asteroid/compare/v2.1.8...v2.1.9?expand=1
 [2.1.13]: https://github.com/bildvitta/asteroid/compare/v2.1.12...v2.1.13?expand=1
 [2.1.14]: https://github.com/bildvitta/asteroid/compare/v2.1.13...v2.1.14?expand=1
+[2.1.15]: https://github.com/bildvitta/asteroid/compare/v2.1.15...v2.1.15?expand=1
