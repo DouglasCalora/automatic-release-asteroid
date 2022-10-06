@@ -101,6 +101,8 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
 
     getContent () {
       const indexOfStart = currentChangelog.indexOf(unreleasedText)
+      console.log("🚀 ~ file: build.js ~ line 104 ~ getContent ~ currentChangelog", currentChangelog)
+      console.log("🚀 ~ file: build.js ~ line 104 ~ getContent ~ indexOfStart", indexOfStart)
       const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
 
       if (!indexOfEnd) {
