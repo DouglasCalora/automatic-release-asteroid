@@ -88,7 +88,7 @@ function getAppExtensionPackage () {
   }
 }
 
-function changelogHandler ({ ora, nextVersion, currentVersion }) {
+function changelogHandler ({ ora, nextVersion, currentVersion, isBeta }) {
   const changelogPath = `${packages.global.path}CHANGELOG.md`
   const resolvedChangelogPath = path.resolve(changelogPath)
 
@@ -102,11 +102,18 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
     getContent () {
       const indexOfStart = currentChangelog.indexOf(unreleasedText) + unreleasedText.length
       const indexOfEnd = currentChangelog.indexOf(`## [`)
-      console.log("🚀 ~ file: build.js ~ line 105 ~ getContent ~ indexOfEnd", indexOfEnd)
-      const indexOfEnd2 = currentChangelog.search(/\[.*\]/, 'm')
-      console.log("🚀 ~ file: build.js ~ line 107 ~ getContent ~ indexOfEnd2", indexOfEnd2)
+      
+      /*
+      * Regex para encontrar o primeiro resultados que respeitam
+      * ## [1.1.0] sendo que os números na versão podem ser qualquer numero, ou
+      * ## [1.1.0-beta.0] sendo que os números na versão podem ser qualquer numero
+      */
+      const indexOfEnd2 = currentChangelog.search(
+        `\#\# ([[0-9]+[\.]?[0-9]+[\.]?[0-9]+\])|(\[[0-9]+[\.]?[0-9]+[\.]?[0-9]+[\-]beta[\.][0-9]+\])`,
+        'm'
+      )
 
-      const hasIndexRange = (indexOfEnd >= 0 && indexOfStart >= 0)
+      const hasIndexRange = (indexOfEnd2 >= 0 && indexOfStart >= 0)
 
       if (!hasIndexRange) {
         return (
@@ -114,9 +121,9 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
         )
       }
 
-      const content = currentChangelog.substring(indexOfStart, indexOfEnd)
+      const content = currentChangelog.substring(indexOfStart, indexOfEnd2)
 
-      return content
+      return content.trimEnd().endsWith('##') ? content.substring(0, content.length - 3) : content
     },
 
     update () {
@@ -355,6 +362,7 @@ async function main () {
 
   const currentBranch = execaSync('git', ['branch', '--show-current']).stdout
   const acceptableBranch = ['main', 'main-homolog']
+  const isBeta = currentBranch === 'main-homolog'
 
   if (!acceptableBranch.includes(currentBranch)) {
     ora.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
@@ -365,9 +373,9 @@ async function main () {
     hasUnreleased,
     update,
     getContent
-  } = changelogHandler({ ora, nextVersion, currentVersion })
+  } = changelogHandler({ ora, nextVersion, currentVersion, isBeta })
 
-  console.log(getContent(), '>>>>>')
+  // console.log(getContent(), '>>>>>')
 
   // if (true) return
 
@@ -379,7 +387,6 @@ async function main () {
     return
   }
 
-  const isBeta = currentBranch === 'main-homolog'
   const publishCommands = ['publish']
 
   isBeta && publishCommands.push('--tag', 'beta')
