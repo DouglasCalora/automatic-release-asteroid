@@ -335,8 +335,6 @@ async function main () {
     }
   }
 
-  console.log(latestVersions, '>>>> latestVersions')
-
   for (const packageName in packages) {
     const packageData = packages[packageName]
 
