@@ -180,6 +180,7 @@ function getNearestVersion (dates, target) {
 }
 
 function getNormalizeVersions (versions = {}, isBeta) {
+  console.log("🚀 ~ file: build.js ~ line 183 ~ getNormalizeVersions ~ versions", isBeta)
   const normalizedVersion = {}
   const nonAcceptableKey = ['created', 'modified']
 
@@ -289,7 +290,16 @@ async function main () {
     '\n'
   )
 
-  const latestVersions = getLatestVersions({ execaSync, ora })
+  const currentBranch = execaSync('git', ['branch', '--show-current']).stdout
+  const acceptableBranch = ['main', 'main-homolog']
+  const isBeta = currentBranch === 'main-homolog'
+
+  if (!acceptableBranch.includes(currentBranch)) {
+    ora.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
+    return
+  }
+
+  const latestVersions = getLatestVersions({ execaSync, ora, isBeta })
 
   let currentVersion = require('../package.json').version
 
@@ -325,6 +335,8 @@ async function main () {
     }
   }
 
+  console.log(latestVersions, '>>>> latestVersions')
+
   for (const packageName in packages) {
     const packageData = packages[packageName]
 
@@ -357,15 +369,6 @@ async function main () {
       'Inicialize a variável de ambiente "GITHUB_TOKEN" no seu sistema operacional para que possa ser feita a criação de release no github'
     ).fail()
 
-    return
-  }
-
-  const currentBranch = execaSync('git', ['branch', '--show-current']).stdout
-  const acceptableBranch = ['main', 'main-homolog']
-  const isBeta = currentBranch === 'main-homolog'
-
-  if (!acceptableBranch.includes(currentBranch)) {
-    ora.fail('Só é possível publicar nas branchs "main" e "main-homolog"')
     return
   }
 
