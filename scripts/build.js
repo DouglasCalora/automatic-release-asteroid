@@ -301,6 +301,7 @@ async function main () {
   })
 
   const nextVersion = semver.clean(responses.nextVersion)
+  console.log("🚀 ~ file: build.js ~ line 304 ~ main ~ nextVersion", nextVersion)
 
   /*
   * caso a versão atual do JSON seja menor do que a ultima versão publicada no NPM
