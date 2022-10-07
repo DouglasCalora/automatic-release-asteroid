@@ -1,6 +1,6 @@
 {
   "name": "automatic-release-asteroid-ui",
-  "version": "2.1.36",
+  "version": "2.1.37",
   "description": "",
   "main": "index.js",
   "publishConfig": {
