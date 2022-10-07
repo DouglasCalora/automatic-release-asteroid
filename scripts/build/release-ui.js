@@ -14,8 +14,10 @@ function releaseUi ({ execaSync, ora, nextVersion, publishCommands, packages }) 
       publishCommands,
       packages
     })
+
   } catch (error) {
     publishSpinner.fail('Falha ao publicar "ui"')
+    throw error
   }
 }
 
