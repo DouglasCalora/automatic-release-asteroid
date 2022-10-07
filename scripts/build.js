@@ -45,37 +45,6 @@ function getVersionLinkCompare (nextVersion, currentVersion) {
   )
 }
 
-async function createGithubRelease ({ body, isBeta, version, ora }) {
-  const { Octokit } = require("@octokit/rest")
-
-  const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN
-  })
-
-  const versionTag = `v${version}`
-
-  const publishReleaseSpinner = ora('Publicando release no github...').start()
-
-  try {
-    await octokit.request('POST /repos/douglascalora/automatic-release-asteroid/releases', {
-      owner: 'douglascalora', // TODO alterar
-      repo: 'automatic-release-asteroid', // TODO alterar
-      tag_name: versionTag,
-      target_commitish: isBeta ? 'main-homolog' : 'main',
-      name: versionTag,
-      body,
-      draft: false,
-      prerelease: isBeta,
-      generate_release_notes: false
-    })
-
-    publishReleaseSpinner.succeed('Publicado release no github com sucesso!')
-  } catch (error) {
-    publishReleaseSpinner.fail('Falha ao publicar release no github.')
-    throw error
-  }
-}
-
 function getAppExtensionPackage () {
   // recupera o package.json
   const appExtensionPackage = packages['app-extension']
@@ -301,10 +270,24 @@ function gitHandler ({ ora, execaSync, nextVersion, isBeta }) {
   pushSpinner.succeed('Push enviado!')
 }
 
+async function createGithubReleaseFromBrowser ({ changelogContent, nextVersion, ora }) {
+  const open = require('open')
+  const tag = `v${nextVersion}`
+
+  // query
+  const body = encodeURIComponent(changelogContent)
+  
+  const browserSpinner = ora('Abrindo browser e redirecionando para github release...')
+  await open(`https://github.com/bildvitta/assistencia-digital/releases/new?tag=${tag}&title=${tag}&body=${body}`)
+  browserSpinner.succeed('Redirecionado para github release.')
+}
+
 // Main
 async function main () {
   const { execaSync } = await import('execa') // https://github.com/sindresorhus/execa
   const { default: ora } = await import('ora') // https://github.com/sindresorhus/ora
+  const notifyDiscordChat = require('./build/notify-discord-chat')
+  const createGithubRelease = require('./build/create-github-release')
 
   // Start!
   console.clear()
@@ -347,7 +330,6 @@ async function main () {
   })
 
   const nextVersion = semver.clean(responses.nextVersion)
-  console.log("🚀 ~ file: build.js ~ line 304 ~ main ~ nextVersion", nextVersion)
 
   /*
   * caso a versão atual do JSON seja menor do que a ultima versão publicada no NPM
@@ -387,15 +369,6 @@ async function main () {
   }
 
   // ----------------------- A partir daqui tudo é referente a publicação do asteroid -----------------------
-
-  if (!process.env.GITHUB_TOKEN) {
-    ora(
-      'Inicialize a variável de ambiente "GITHUB_TOKEN" no seu sistema operacional para que possa ser feita a criação de release no github'
-    ).fail()
-
-    return
-  }
-
   const {
     hasUnreleased,
     update,
@@ -441,13 +414,38 @@ async function main () {
     isBeta
   })
 
-  // cria release no github caso consiga
-  createGithubRelease({
-    body: changelogContent,
-    isBeta,
-    ora,
-    version: nextVersion,
-  })
+  if (process.env.GITHUB_TOKEN) {
+    // cria release no github caso consiga
+    createGithubRelease({
+      body: changelogContent,
+      isBeta,
+      ora,
+      version: nextVersion,
+    })
+
+    notifyDiscordChat({
+      changelogContent,
+      ora,
+      nextVersion,
+      isBeta,
+      hasGithubRelease: true
+    })
+  } else {
+    notifyDiscordChat({
+      changelogContent,
+      ora,
+      nextVersion,
+      isBeta,
+      hasGithubRelease: false
+    })
+
+    createGithubReleaseFromBrowser({
+      changelogContent,
+      nextVersion,
+      ora
+    })
+  }
 }
+
 
 main()
