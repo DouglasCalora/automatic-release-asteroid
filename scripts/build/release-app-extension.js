@@ -29,10 +29,12 @@ function releaseAppExtension ({ execaSync, ora, nextVersion, publishCommands, pa
       execaSync('npm', publishCommands, { cwd: packages['app-extension'].resolved })
       publishAppExtensionSpinner.succeed('"app-extension" publicada com sucesso')
     } catch (error) {
+      console.log("🚀 ~ file: release-app-extension.js ~ line 32 ~ releaseAppExtension ~ error", error)
       publishAppExtensionSpinner.fail('Falha ao publicar "app-extension"')
       throw error
     }
   } catch (error) {
+    console.log("🚀 ~ file: release-app-extension.js ~ line 36 ~ releaseAppExtension ~ error", error)
     installSpinner.fail('Falha ao instalar "ui" no "app-extension')
     throw error
   }
