@@ -366,7 +366,7 @@ async function main () {
 
   console.log(getContent(), '>>>>>')
 
-  if (true) return
+  // if (true) return
 
   if (!hasUnreleased) {
     ora(
