@@ -102,6 +102,9 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
     getContent () {
       const indexOfStart = currentChangelog.indexOf(unreleasedText) + unreleasedText.length
       const indexOfEnd = currentChangelog.indexOf(`## [`)
+      console.log("🚀 ~ file: build.js ~ line 105 ~ getContent ~ indexOfEnd", indexOfEnd)
+      const indexOfEnd2 = currentChangelog.search(/\[.*\]/, 'm')
+      console.log("🚀 ~ file: build.js ~ line 107 ~ getContent ~ indexOfEnd2", indexOfEnd2)
 
       const hasIndexRange = (indexOfEnd >= 0 && indexOfStart >= 0)
 
