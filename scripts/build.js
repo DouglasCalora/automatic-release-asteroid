@@ -193,7 +193,7 @@ function getLatestVersions ({ execaSync, isBeta, ora }) {
   const latestVersionsSpinner = ora('Obtendo versões atualizadas no npm...').start()
 
   // TODO alterar nomes dos pacotes
-  const appExtensionVersions = JSON.parse(execaSync('npm', ['show', 'app-extension', 'time', '--json']).stdout) 
+  const appExtensionVersions = JSON.parse(execaSync('npm', ['show', 'app-extension', 'time', '--json']).stdout)
   const uiVersions = JSON.parse(execaSync('npm', ['show', 'automatic-release-asteroid-ui', 'time', '--json']).stdout)
 
   const normalizedAppExtensionVersions = getNormalizeVersions(appExtensionVersions, isBeta)
