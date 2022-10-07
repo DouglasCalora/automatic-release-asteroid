@@ -276,7 +276,7 @@ function releaseUi ({ execaSync, ora, nextVersion, publishCommands }) {
   }
 }
 
-function commitAndPush ({ ora, execaSync, nextVersion }) {
+function commitAndPush ({ ora, execaSync, nextVersion, isBeta }) {
   // commita as alterações
   const commitSpinner = ora('Commitando alterações...').start()
   execaSync('git', ['add', '.'], { cwd: packages.global.resolved })
