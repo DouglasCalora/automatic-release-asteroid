@@ -101,7 +101,7 @@ function changelogHandler ({ ora, nextVersion, currentVersion, isBeta }) {
 
     getContent () {
       const indexOfStart = currentChangelog.indexOf(unreleasedText) + unreleasedText.length
-      const indexOfEnd = currentChangelog.indexOf(`## [`)
+      // const indexOfEnd = currentChangelog.indexOf(`## [`)
       
       /*
       * Regex para encontrar o primeiro resultados que respeitam
@@ -180,7 +180,6 @@ function getNearestVersion (dates, target) {
 }
 
 function getNormalizeVersions (versions = {}, isBeta) {
-  console.log("🚀 ~ file: build.js ~ line 183 ~ getNormalizeVersions ~ versions", isBeta)
   const normalizedVersion = {}
   const nonAcceptableKey = ['created', 'modified']
 
@@ -276,7 +275,7 @@ function releaseUi ({ execaSync, ora, nextVersion, publishCommands }) {
   }
 }
 
-function commitAndPush ({ ora, execaSync, nextVersion, isBeta }) {
+function gitHandler ({ ora, execaSync, nextVersion, isBeta }) {
   // commita as alterações
   const commitSpinner = ora('Commitando alterações...').start()
   execaSync('git', ['add', '.'], { cwd: packages.global.resolved })
@@ -403,10 +402,6 @@ async function main () {
     getContent
   } = changelogHandler({ ora, nextVersion, currentVersion, isBeta })
 
-  // console.log(getContent(), '>>>>>')
-
-  // if (true) return
-
   if (!hasUnreleased) {
     ora(
       'Não foi possível encontrar o "## Não publicado" dentro do CHANGELOG.md por favor adicione para continuar'
@@ -415,8 +410,8 @@ async function main () {
     return
   }
 
+  const changelogContent = getContent()
   const publishCommands = ['publish']
-
   isBeta && publishCommands.push('--tag', 'beta')
 
   if (nextVersion !== latestVersions.ui) {
@@ -438,10 +433,17 @@ async function main () {
   // atualiza o CHANGELOG.md
   update()
 
-  commitAndPush({ ora, execaSync })
-  // cria release no github
+  // commita,faz o push, cria tag e faz push da tag
+  gitHandler({
+    ora,
+    execaSync,
+    nextVersion,
+    isBeta
+  })
+
+  // cria release no github caso consiga
   createGithubRelease({
-    body: getContent(),
+    body: changelogContent,
     isBeta,
     ora,
     version: nextVersion,
