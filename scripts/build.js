@@ -358,7 +358,15 @@ async function main () {
     return
   }
 
-  const { hasUnreleased, update, getContent } = changelogHandler({ ora, nextVersion, currentVersion })
+  const {
+    hasUnreleased,
+    update,
+    getContent
+  } = changelogHandler({ ora, nextVersion, currentVersion })
+
+  console.log(getContent(), '>>>>>')
+
+  if (true) return
 
   if (!hasUnreleased) {
     ora(

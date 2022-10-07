@@ -7,6 +7,11 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 Para encontrar de uma forma mais detalhada todas as mudanças da `versão 2` para a `versão 3`, navegue até o arquivo `/docs/src/pages/start/upgrade-guide.md`.
 Neste arquivo (CHANGELOG.MD) você encontrará somente as mudanças referentes a versão 3.
 
+
+## Não publicado
+### Adicionado
+- Funcionou a validação beta 3!!
+
 ## [2.1.27-beta.5] - 07-10-2022
 ### Adicionado
 - Funcionou a validação beta 3!!
