@@ -24,7 +24,7 @@ async function createGithubRelease ({ body, isBeta, version, ora, onSuccess = ()
 
     publishReleaseSpinner.succeed('Publicado release no github com sucesso!')
     return Promise.resolve({ success: true })
-  } catch (error) {
+  } catch {
     publishReleaseSpinner.fail('Falha ao publicar release no github.')
     return Promise.resolve({ success: true })
   }
