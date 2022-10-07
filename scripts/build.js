@@ -101,7 +101,7 @@ function changelogHandler ({ ora, nextVersion, currentVersion }) {
 
     getContent () {
       const indexOfStart = currentChangelog.indexOf(unreleasedText) + unreleasedText.length
-      const indexOfEnd = currentChangelog.indexOf(`## [${currentVersion}]`)
+      const indexOfEnd = currentChangelog.indexOf(`## [`)
 
       const hasIndexRange = (indexOfEnd >= 0 && indexOfStart >= 0)
 
