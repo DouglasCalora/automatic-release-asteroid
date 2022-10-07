@@ -1,4 +1,4 @@
-async function createGithubRelease ({ body, isBeta, version, ora }) {
+async function createGithubRelease ({ body, isBeta, version, ora, onSuccess = () => {} }) {
   const { Octokit } = require("@octokit/rest")
 
   const octokit = new Octokit({
@@ -23,9 +23,9 @@ async function createGithubRelease ({ body, isBeta, version, ora }) {
     })
 
     publishReleaseSpinner.succeed('Publicado release no github com sucesso!')
+    onSuccess()
   } catch (error) {
     publishReleaseSpinner.fail('Falha ao publicar release no github.')
-    throw error
   }
 }
 

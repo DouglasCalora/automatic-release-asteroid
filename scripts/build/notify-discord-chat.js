@@ -1,4 +1,5 @@
 async function notifyDiscordChat ({ changelogContent, ora, nextVersion, isBeta, hasGithubRelease }) {
+  console.log("🚀 ~ file: notify-discord-chat.js ~ line 2 ~ notifyDiscordChat ~ hasGithubRelease", hasGithubRelease)
   const axios = require('axios')
   const tag = `v${nextVersion}`
 

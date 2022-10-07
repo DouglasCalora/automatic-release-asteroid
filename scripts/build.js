@@ -142,8 +142,7 @@ async function main () {
     nextVersion,
     currentVersion,
     isBeta,
-    packages,
-    jetpack
+    packages
   })
 
   if (!hasUnreleased) {
@@ -188,37 +187,32 @@ async function main () {
     packages
   })
 
+  let createdReleaseFromAPI = false
+
   if (process.env.GITHUB_TOKEN) {
-    // cria release no github caso consiga
-    createGithubRelease({
+    const { success } = await createGithubRelease({
       body: changelogContent,
       isBeta,
       ora,
       version: nextVersion,
     })
 
-    notifyDiscordChat({
-      changelogContent,
-      ora,
-      nextVersion,
-      isBeta,
-      hasGithubRelease: true
-    })
+    createdReleaseFromAPI = success
   } else {
-    notifyDiscordChat({
-      changelogContent,
-      ora,
-      nextVersion,
-      isBeta,
-      hasGithubRelease: false
-    })
-
     createGithubReleaseFromBrowser({
       changelogContent,
       nextVersion,
       ora
     })
   }
+
+  notifyDiscordChat({
+    changelogContent,
+    ora,
+    nextVersion,
+    isBeta,
+    hasGithubRelease: !!process.env.GITHUB_TOKEN && createdReleaseFromAPI
+  })
 }
 
 main()
