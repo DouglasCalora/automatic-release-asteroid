@@ -57,7 +57,7 @@ function getAppExtensionPackage () {
   }
 }
 
-function changelogHandler ({ ora, nextVersion, currentVersion, isBeta }) {
+function changelogHandler ({ ora, nextVersion, currentVersion }) {
   const changelogPath = `${packages.global.path}CHANGELOG.md`
   const resolvedChangelogPath = path.resolve(changelogPath)
 
@@ -120,72 +120,6 @@ function changelogHandler ({ ora, nextVersion, currentVersion, isBeta }) {
       }
     }
   }
-}
-
-function getNearestVersion (dates, target) {
-  if (!target) target = Date.now()
-
-  else if (target instanceof Date) target = target.getTime()
-
-  var nearest = Infinity
-  var winner = -1
-
-  for (const key in dates) {
-    let date = new Date(dates[key])
-
-    if (date instanceof Date) {
-      date = date.getTime()
-    }
-
-    const distance = Math.abs(date - target)
-
-    if (distance < nearest) {
-      nearest = distance
-      winner = key
-    }
-  }
-
-  return winner
-}
-
-function getNormalizeVersions (versions = {}, isBeta) {
-  const normalizedVersion = {}
-  const nonAcceptableKey = ['created', 'modified']
-
-  for (const key in versions) {
-    if (nonAcceptableKey.includes(key)) continue
-
-    if (isBeta && key.includes('-beta')) {
-      normalizedVersion[key] = versions[key]
-      continue
-    }
-
-    if (!isBeta && !key.includes('-beta')) {
-      normalizedVersion[key] = versions[key]
-    }
-  }
-
-  return normalizedVersion
-}
-
-function getLatestVersions ({ execaSync, isBeta, ora }) {
-  const latestVersionsSpinner = ora('Obtendo versões atualizadas no npm...').start()
-
-  // TODO alterar nomes dos pacotes
-  const appExtensionVersions = JSON.parse(execaSync('npm', ['show', 'app-extension', 'time', '--json']).stdout)
-  const uiVersions = JSON.parse(execaSync('npm', ['show', 'automatic-release-asteroid-ui', 'time', '--json']).stdout)
-
-  const normalizedAppExtensionVersions = getNormalizeVersions(appExtensionVersions, isBeta)
-  const normalizedUiVersions = getNormalizeVersions(uiVersions, isBeta)
-  const today = new Date()
-
-  const versions = {
-    ui: getNearestVersion(normalizedUiVersions, today),
-    appExtension: getNearestVersion(normalizedAppExtensionVersions, today)
-  }
-
-  latestVersionsSpinner.succeed('Versões do npm obtidas!')
-  return versions
 }
 
 function releaseAppExtension ({ execaSync, ora, nextVersion, publishCommands }) {
@@ -288,6 +222,7 @@ async function main () {
   const { default: ora } = await import('ora') // https://github.com/sindresorhus/ora
   const notifyDiscordChat = require('./build/notify-discord-chat')
   const createGithubRelease = require('./build/create-github-release')
+  const getLatestVersions = require('./build/get-latest-versions')
 
   // Start!
   console.clear()
@@ -446,6 +381,5 @@ async function main () {
     })
   }
 }
-
 
 main()
