@@ -2,6 +2,7 @@ function releaseAppExtension ({ execaSync, ora, nextVersion, publishCommands, pa
   const installNextUi = require('./install-next-ui')
 
   const { error } = installNextUi({ execaSync, ora, nextVersion, packages })
+  console.log("🚀 ~ file: release-app-extension.js ~ line 5 ~ releaseAppExtension ~ error", error)
 
   if (error) {
     return { success: false, error: true }
