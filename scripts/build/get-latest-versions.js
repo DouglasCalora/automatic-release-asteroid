@@ -13,8 +13,16 @@ function getLatestVersions ({ execaSync, isBeta, ora }) {
   const today = new Date()
 
   const versions = {
-    ui: getNearestVersion(normalizedUiVersions, today),
-    appExtension: getNearestVersion(normalizedAppExtensionVersions, today)
+    ui: {
+      stable: getNearestVersion(normalizedUiVersions.stable, today),
+      beta: getNearestVersion(normalizedUiVersions.beta, today),
+      latest: getNearestVersion(normalizedUiVersions.all, today)
+    },
+    appExtension: {
+      stable: getNearestVersion(normalizedAppExtensionVersions.stable, today),
+      beta: getNearestVersion(normalizedAppExtensionVersions.beta, today),
+      latest: getNearestVersion(normalizedAppExtensionVersions.all, today)
+    }
   }
 
   latestVersionsSpinner.succeed('Versões do npm obtidas!')

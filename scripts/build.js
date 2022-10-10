@@ -73,6 +73,7 @@ async function main () {
   }
 
   const latestVersions = getLatestVersions({ execaSync, ora, isBeta })
+  const model = isBeta ? 'beta' : 'stable'
 
   let currentVersion = require('../package.json').version
 
@@ -99,13 +100,13 @@ async function main () {
   * caso a versão atual do JSON seja menor do que a ultima versão publicada no NPM
   * então a versão atual deve ser a ultima versão publicada no npm
   */
-  for (const key in latestVersions) {
-    const latestVersion = latestVersions[key]
+  // for (const key in latestVersions) {
+  //   const latestVersion = latestVersions[key]
 
-    if (latestVersion < currentVersion) {
-      currentVersion = latestVersion
-    }
-  }
+  //   if (latestVersion < currentVersion) {
+  //     currentVersion = latestVersion
+  //   }
+  // }
 
   for (const packageName in packages) {
     const packageData = packages[packageName]
@@ -142,7 +143,9 @@ async function main () {
     nextVersion,
     currentVersion,
     isBeta,
-    packages
+    packages,
+    latestVersions,
+    isBeta
   })
 
   if (!hasUnreleased) {
@@ -158,7 +161,7 @@ async function main () {
   isBeta && publishCommands.push('--tag', 'beta')
 
   // Se a proxima versão for diferente da ultima versão publicada, então significa que podemos lançar uma nova versão do ui
-  if (nextVersion !== latestVersions.ui) {
+  if (nextVersion !== latestVersions.ui[model]) {
     const { error: uiError } = releaseUi({
       execaSync,
       ora,
@@ -169,8 +172,6 @@ async function main () {
 
     if (uiError) return
   }
-
-  // if (true) return
 
   const { error: appExtensionError } = releaseAppExtension({
     execaSync,
