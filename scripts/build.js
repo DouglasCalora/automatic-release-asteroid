@@ -179,13 +179,15 @@ async function main () {
 
     if (appExtensionError) return
   } else {
-    releaseAppExtension({
+    const { error } = releaseAppExtension({
       execaSync,
       ora,
       nextVersion,
       publishCommands,
       packages
     })
+
+    if (error) return
   }
 
   // atualiza o CHANGELOG.md
