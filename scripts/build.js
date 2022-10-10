@@ -97,18 +97,6 @@ async function main () {
 
   const nextVersion = semver.clean(responses.nextVersion)
 
-  /*
-  * caso a versão atual do JSON seja menor do que a ultima versão publicada no NPM
-  * então a versão atual deve ser a ultima versão publicada no npm
-  */
-  // for (const key in latestVersions) {
-  //   const latestVersion = latestVersions[key]
-
-  //   if (latestVersion < currentVersion) {
-  //     currentVersion = latestVersion
-  //   }
-  // }
-
   for (const packageName in packages) {
     const packageData = packages[packageName]
 
@@ -142,7 +130,6 @@ async function main () {
   } = changelogHandler({
     ora,
     nextVersion,
-    currentVersion,
     isBeta,
     packages,
     latestVersions
