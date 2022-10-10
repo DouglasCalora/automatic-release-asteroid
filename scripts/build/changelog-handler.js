@@ -23,7 +23,7 @@ function changelogHandler ({ ora, nextVersion, currentVersion, packages }) {
       * ## [1.1.0-beta.0] sendo que os números na versão podem ser qualquer numero
       */
       const indexOfEnd2 = currentChangelog.search(
-        `\#\# ([[0-9]+[\.]?[0-9]+[\.]?[0-9]+\])|(\[[0-9]+[\.]?[0-9]+[\.]?[0-9]+[\-]beta[\.][0-9]+\])`,
+        /## ([[0-9]+[.]?[0-9]+[.]?[0-9]+])|([[0-9]+[.]?[0-9]+[.]?[0-9]+[-]beta[.][0-9]+])/,
         'm'
       )
 
