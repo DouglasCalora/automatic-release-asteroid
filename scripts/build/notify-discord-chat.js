@@ -3,11 +3,12 @@ async function notifyDiscordChat ({ changelogContent, ora, nextVersion, isBeta, 
   const tag = `v${nextVersion}`
 
   const discordSpinner = ora('Notificando chat do discord...').start()
+  const mentionContent = process.env.DISCORD_ROLE_ID ? `<@&${process.env.DISCORD_ROLE_ID}> ` : ''
 
   try {
     await axios.post(process.env.DISCORD_WEBHOOK_CHANGELOG, {
       username: 'Asteroid',
-      content: `Nova versão ${isBeta ? '**beta**' : ''} do asteroid lançada!`,
+      content: `${mentionContent}Nova versão ${isBeta ? '**beta**' : ''} do asteroid lançada!`,
       embeds: [
         {
           title: tag,

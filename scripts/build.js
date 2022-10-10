@@ -157,23 +157,30 @@ async function main () {
   const publishCommands = ['publish']
   isBeta && publishCommands.push('--tag', 'beta')
 
+  // Se a proxima versão for diferente da ultima versão publicada, então significa que podemos lançar uma nova versão do ui
   if (nextVersion !== latestVersions.ui) {
-    releaseUi({
+    const { error: uiError } = releaseUi({
       execaSync,
       ora,
       nextVersion,
       publishCommands,
       packages
     })
-  } else {
-    releaseAppExtension({
-      execaSync,
-      ora,
-      nextVersion,
-      publishCommands,
-      packages
-    })
+
+    if (uiError) return
   }
+
+  // if (true) return
+
+  const { error: appExtensionError } = releaseAppExtension({
+    execaSync,
+    ora,
+    nextVersion,
+    publishCommands,
+    packages
+  })
+
+  if (appExtensionError) return
 
   // atualiza o CHANGELOG.md
   update()
@@ -207,13 +214,15 @@ async function main () {
   }
 
   // TODO Voltar
-  // notifyDiscordChat({
-  //   changelogContent,
-  //   ora,
-  //   nextVersion,
-  //   isBeta,
-  //   hasGithubRelease: !!process.env.GITHUB_TOKEN && createdReleaseFromAPI
-  // })
+  // if (process.env.DISCORD_WEBHOOK_CHANGELOG) {
+  //   notifyDiscordChat({
+  //     changelogContent,
+  //     ora,
+  //     nextVersion,
+  //     isBeta,
+  //     hasGithubRelease: !!process.env.GITHUB_TOKEN && createdReleaseFromAPI
+  //   })
+  // }
 }
 
 main()

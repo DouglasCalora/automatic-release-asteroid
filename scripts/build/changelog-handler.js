@@ -23,7 +23,7 @@ function changelogHandler ({ ora, nextVersion, currentVersion, packages }) {
       * ## [1.1.0-beta.0] sendo que os números na versão podem ser qualquer numero
       */
       const indexOfEnd2 = currentChangelog.search(
-        `\#\# ([[0-9]+[\.]?[0-9]+[\.]?[0-9]+\])|(\[[0-9]+[\.]?[0-9]+[\.]?[0-9]+[\-]beta[\.][0-9]+\])`,
+        /(## [[0-9]+[.]?[0-9]+[.]?[0-9]+\])|(## \[[0-9]+[.]?[0-9]+[.]?[0-9]+[-]beta[.][0-9]+\])/,
         'm'
       )
 
@@ -37,7 +37,8 @@ function changelogHandler ({ ora, nextVersion, currentVersion, packages }) {
 
       const content = currentChangelog.substring(indexOfStart, indexOfEnd2)
 
-      return content.trimEnd().endsWith('##') ? content.substring(0, content.length - 3) : content
+      return content
+      // return content.trimEnd().endsWith('##') ? content.substring(0, content.length - 3) : content
     },
 
     update () {
