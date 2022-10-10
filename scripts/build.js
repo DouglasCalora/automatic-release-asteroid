@@ -206,13 +206,14 @@ async function main () {
     })
   }
 
-  notifyDiscordChat({
-    changelogContent,
-    ora,
-    nextVersion,
-    isBeta,
-    hasGithubRelease: !!process.env.GITHUB_TOKEN && createdReleaseFromAPI
-  })
+  // TODO Voltar
+  // notifyDiscordChat({
+  //   changelogContent,
+  //   ora,
+  //   nextVersion,
+  //   isBeta,
+  //   hasGithubRelease: !!process.env.GITHUB_TOKEN && createdReleaseFromAPI
+  // })
 }
 
 main()
