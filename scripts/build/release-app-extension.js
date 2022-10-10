@@ -8,6 +8,8 @@ function releaseAppExtension ({ execaSync, ora, nextVersion, publishCommands, pa
     return { success: false, error: true }
   }
 
+  const publishAppExtensionSpinner = ora('Publicando "app-extension"...')
+
   try {
     // publica a nova versão do "app-extension"
     execaSync('npm', publishCommands, { cwd: packages['app-extension'].resolved })

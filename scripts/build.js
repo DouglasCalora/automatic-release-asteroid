@@ -158,13 +158,26 @@ async function main () {
   isBeta && publishCommands.push('--tag', 'beta')
 
   if (nextVersion !== latestVersions.ui) {
-    releaseUi({
+    const { error } = releaseUi({
       execaSync,
       ora,
       nextVersion,
       publishCommands,
       packages
     })
+    console.log("🚀 ~ file: build.js ~ line 168 ~ main ~ error", error)
+
+    if (error) return
+
+    const { error: appExtensionError } =  releaseAppExtension({
+      execaSync,
+      ora,
+      nextVersion,
+      publishCommands,
+      packages
+    })
+
+    if (appExtensionError) return
   } else {
     releaseAppExtension({
       execaSync,
