@@ -11,6 +11,17 @@ Neste arquivo (CHANGELOG.MD) você encontrará somente as mudanças referentes a
 ### Adicionado
 - Teste
 
+## [2.2.13] - 10-10-2022
+### Adicionado
+- Teste
+
+## [2.2.12] - 10-10-2022
+### Adicionado
+- Teste
+
+## [2.2.11] - 10-10-2022
+### Adicionado
+- Teste
 
 ## [2.2.11-beta.0] - 10-10-2022
 ### Adicionado
@@ -397,3 +408,6 @@ teste
 [2.2.9]: https://github.com/bildvitta/asteroid/compare/v2.2.9-beta.3...v2.2.9?expand=1
 [2.2.10]: https://github.com/bildvitta/asteroid/compare/v2.2.9...v2.2.10?expand=1
 [2.2.11-beta.0]: https://github.com/bildvitta/asteroid/compare/v2.2.10...v2.2.11-beta.0?expand=1
+[2.2.11]: https://github.com/bildvitta/asteroid/compare/v2.2.10...v2.2.11?expand=1
+[2.2.12]: https://github.com/bildvitta/asteroid/compare/v2.2.11...v2.2.12?expand=1
+[2.2.13]: https://github.com/bildvitta/asteroid/compare/v2.2.12...v2.2.13?expand=1
