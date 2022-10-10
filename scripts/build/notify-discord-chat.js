@@ -1,12 +1,11 @@
 async function notifyDiscordChat ({ changelogContent, ora, nextVersion, isBeta, hasGithubRelease }) {
-  console.log("🚀 ~ file: notify-discord-chat.js ~ line 2 ~ notifyDiscordChat ~ hasGithubRelease", hasGithubRelease)
   const axios = require('axios')
   const tag = `v${nextVersion}`
 
   const discordSpinner = ora('Notificando chat do discord...').start()
 
   try {
-    await axios.post('youtube.com', {
+    await axios.post(process.env.DISCORD_WEBHOOK_CHANGELOG, {
       username: 'Asteroid',
       content: `Nova versão ${isBeta ? '**beta**' : ''} do asteroid lançada!`,
       embeds: [
