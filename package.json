@@ -1,6 +1,6 @@
 {
   "name": "automatic-release-asteroid",
-  "version": "2.2.13",
+  "version": "2.2.14-beta.0",
   "description": "",
   "main": "index.js",
   "scripts": {
