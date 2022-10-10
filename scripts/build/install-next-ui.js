@@ -23,11 +23,13 @@ function installNextUi ({ execaSync, ora, nextVersion, packages, retry = false }
     installSpinner.succeed('Instalado "ui" no "app-extension"')
 
     return { success: true, error: false }
-  } catch (error) {
+  } catch {
     if (retry) {
       installSpinner.fail('Falha ao instalar "ui" no "app-extension')
       return { success: false, error: true }
     }
+
+    console.log('CAI AQUI BABY')
 
     execaSync('rm', ['-rf', 'node_modules'], { cwd: packages['app-extension'].resolved })
     execaSync('rm', ['-rf', 'package-lock.json'], { cwd: packages['app-extension'].resolved })
