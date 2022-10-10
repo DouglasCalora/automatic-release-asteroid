@@ -158,18 +158,7 @@ async function main () {
   isBeta && publishCommands.push('--tag', 'beta')
 
   if (nextVersion !== latestVersions.ui) {
-    const { error } = releaseUi({
-      execaSync,
-      ora,
-      nextVersion,
-      publishCommands,
-      packages
-    })
-    console.log("🚀 ~ file: build.js ~ line 168 ~ main ~ error", error)
-
-    if (error) return
-
-    const { error: appExtensionError } =  releaseAppExtension({
+    const { error: uiError } = releaseUi({
       execaSync,
       ora,
       nextVersion,
@@ -177,18 +166,18 @@ async function main () {
       packages
     })
 
-    if (appExtensionError) return
-  } else {
-    const { error } = releaseAppExtension({
-      execaSync,
-      ora,
-      nextVersion,
-      publishCommands,
-      packages
-    })
-
-    if (error) return
+    if (uiError) return
   }
+
+  const { error: appExtensionError } = releaseAppExtension({
+    execaSync,
+    ora,
+    nextVersion,
+    publishCommands,
+    packages
+  })
+
+  if (appExtensionError) return
 
   // atualiza o CHANGELOG.md
   update()

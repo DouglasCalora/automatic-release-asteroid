@@ -7,9 +7,9 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 Para encontrar de uma forma mais detalhada todas as mudanças da `versão 2` para a `versão 3`, navegue até o arquivo `/docs/src/pages/start/upgrade-guide.md`.
 Neste arquivo (CHANGELOG.MD) você encontrará somente as mudanças referentes a versão 3.
 
-## [2.2.4] - 10-10-2022
-### Removido
-- teste
+## [2.2.5] - 10-10-2022
+### removido
+- meee
 
 ## [2.2.3] - 10-10-2022
 ### Modificado
@@ -346,4 +346,4 @@ teste
 [2.2.1]: https://github.com/bildvitta/asteroid/compare/v2.2.0...v2.2.1?expand=1
 [2.2.2]: https://github.com/bildvitta/asteroid/compare/v2.2.0...v2.2.2?expand=1
 [2.2.3]: https://github.com/bildvitta/asteroid/compare/v2.2.3...v2.2.3?expand=1
-[2.2.4]: https://github.com/bildvitta/asteroid/compare/v2.2.3...v2.2.4?expand=1
+[2.2.5]: https://github.com/bildvitta/asteroid/compare/v2.2.4...v2.2.5?expand=1
