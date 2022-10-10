@@ -60,7 +60,8 @@ function changelogHandler ({ ora, nextVersion, currentVersion, packages, latestV
         jetpack.write(resolvedChangelogPath, normalizedChangelog)
 
         updateChangelogSpinner.succeed('"CHANGELOG.md" foi atualizado com sucesso!')
-      } catch {
+      } catch (error) {
+        console.log(error)
         updateChangelogSpinner.fail('Falha ao atualizar "CHANGELOG.md".')
       }
     }
