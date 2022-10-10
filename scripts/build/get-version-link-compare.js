@@ -1,4 +1,4 @@
-function getVersionLinkCompare (nextVersion, latestVersions, isBeta) {
+function getVersionLinkCompare ({ nextVersion, latestVersions, isBeta }) {
   const currentVersion = isBeta ? latestVersions.appExtension.latest : latestVersions.appExtension.stable
   console.log("🚀 ~ file: get-version-link-compare.js ~ line 3 ~ getVersionLinkCompare ~ currentVersion", currentVersion)
 

@@ -51,7 +51,7 @@ function changelogHandler ({ ora, nextVersion, currentVersion, packages, latestV
           `## [${nextVersion}] - ${publishedDate}`
         ).trimEnd()
 
-        const versionLinkCompare = getVersionLinkCompare(nextVersion, currentVersion, latestVersions, isBeta)
+        const versionLinkCompare = getVersionLinkCompare({ nextVersion, latestVersions, isBeta })
 
         const normalizedChangelog = (
           replacedChangelog + '\n' + versionLinkCompare
