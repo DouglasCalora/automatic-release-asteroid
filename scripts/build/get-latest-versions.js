@@ -8,8 +8,8 @@ function getLatestVersions ({ execaSync, isBeta, ora }) {
   const appExtensionVersions = JSON.parse(execaSync('npm', ['show', 'app-extension', 'time', '--json']).stdout)
   const uiVersions = JSON.parse(execaSync('npm', ['show', 'automatic-release-asteroid-ui', 'time', '--json']).stdout)
 
-  const normalizedAppExtensionVersions = getNormalizedVersions(appExtensionVersions, isBeta)
-  const normalizedUiVersions = getNormalizedVersions(uiVersions, isBeta)
+  const normalizedAppExtensionVersions = getNormalizedVersions(appExtensionVersions)
+  const normalizedUiVersions = getNormalizedVersions(uiVersions)
   const today = new Date()
 
   const versions = {

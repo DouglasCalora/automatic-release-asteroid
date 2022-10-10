@@ -73,6 +73,7 @@ async function main () {
   }
 
   const latestVersions = getLatestVersions({ execaSync, ora, isBeta })
+  console.log("🚀 ~ file: build.js ~ line 76 ~ main ~ latestVersions", latestVersions)
   const model = isBeta ? 'beta' : 'stable'
 
   let currentVersion = require('../package.json').version
@@ -144,8 +145,7 @@ async function main () {
     currentVersion,
     isBeta,
     packages,
-    latestVersions,
-    isBeta
+    latestVersions
   })
 
   if (!hasUnreleased) {
