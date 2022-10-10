@@ -1,4 +1,4 @@
-function installNextUi ({ execaSync, ora, nextVersion, packages }) {
+function installNextUi ({ execaSync, ora, nextVersion, packages, retry = false }) {
   const jetpack = require('fs-jetpack') // https://github.com/szwacz/fs-jetpack
   const getAppExtensionPackage = require('./get-app-extension-package')
 
@@ -24,8 +24,15 @@ function installNextUi ({ execaSync, ora, nextVersion, packages }) {
 
     return { success: true, error: false }
   } catch (error) {
-    installSpinner.fail('Falha ao instalar "ui" no "app-extension')
-    return { success: false, error: true }
+    if (retry) {
+      installSpinner.fail('Falha ao instalar "ui" no "app-extension')
+      return { success: false, error: true }
+    }
+
+    execaSync('rm', ['-rf', 'node_modules'], { cwd: packages['app-extension'].resolved })
+    execaSync('rm', ['-rf', 'package-lock.json'], { cwd: packages['app-extension'].resolved })
+
+    installNextUi({ execaSync, ora, nextVersion, packages, retry: true })
   }
 }
 
