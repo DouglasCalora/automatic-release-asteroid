@@ -189,7 +189,7 @@ async function main () {
 
   let createdReleaseFromAPI = false
 
-  if (process.env.GITHUB_TOKEN) {
+  if (!process.env.GITHUB_TOKEN) {
     const { success } = await createGithubRelease({
       body: changelogContent,
       isBeta,
